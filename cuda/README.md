@@ -1,11 +1,23 @@
 JavaCPP Presets for CUDA
 ========================
 
+License Agreements
+------------------
+By downloading these archives, you agree to the terms of the license agreements for NVIDIA software included in the archives.
+
+### CUDA Toolkit
+To view the license for the CUDA Toolkit included in these archives, click [here](http://docs.nvidia.com/cuda/eula/index.html)
+
+### CUDA Deep Neural Network library (cuDNN)
+To view the license for cuDNN included in these archives, click [here](https://developer.nvidia.com/cudnn/license_agreement)
+
+
 Introduction
 ------------
 This directory contains the JavaCPP Presets module for:
 
- * CUDA 7.5  https://developer.nvidia.com/cuda-zone
+ * CUDA 10.0  https://developer.nvidia.com/cuda-zone
+ * cuDNN 7.3  https://developer.nvidia.com/cudnn
 
 Please refer to the parent README.md file for more detailed information about the JavaCPP Presets.
 
@@ -17,6 +29,7 @@ Java API documentation is available here:
  * http://bytedeco.org/javacpp-presets/cuda/apidocs/
 
 &lowast; We can also [use Thrust with JavaCPP](https://github.com/bytedeco/javacpp/wiki/Interface-Thrust-and-CUDA).
+
 
 Sample Usage
 ------------
@@ -35,16 +48,43 @@ We can use [Maven 3](http://maven.apache.org/) to download and install automatic
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bytedeco.javacpp-presets.cuda</groupId>
     <artifactId>mnistcudnn</artifactId>
-    <version>1.2</version>
+    <version>1.4.3</version>
     <properties>
         <exec.mainClass>MNISTCUDNN</exec.mainClass>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>cuda</artifactId>
-            <version>7.5-1.2</version>
+            <artifactId>cuda-platform</artifactId>
+            <version>10.0-7.3-1.4.3</version>
         </dependency>
+
+        <!-- Additional dependencies to use bundled CUDA and cuDNN -->
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>cuda</artifactId>
+            <version>10.0-7.3-1.4.3</version>
+            <classifier>linux-x86_64-redist</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>cuda</artifactId>
+            <version>10.0-7.3-1.4.3</version>
+            <classifier>linux-ppc64le-redist</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>cuda</artifactId>
+            <version>10.0-7.3-1.4.3</version>
+            <classifier>macosx-x86_64-redist</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>cuda</artifactId>
+            <version>10.0-7.3-1.4.3</version>
+            <classifier>windows-x86_64-redist</classifier>
+        </dependency>
+
     </dependencies>
 </project>
 ```
@@ -194,6 +234,7 @@ public class MNISTCUDNN {
                           biasTensorDesc = new cudnnTensorStruct();
         cudnnFilterStruct filterDesc = new cudnnFilterStruct();
         cudnnConvolutionStruct convDesc = new cudnnConvolutionStruct();
+        cudnnActivationStruct activationDesc = new cudnnActivationStruct();
         cudnnPoolingStruct poolingDesc = new cudnnPoolingStruct();
         cublasContext cublasHandle = new cublasContext();
         void createHandles() {
@@ -203,12 +244,14 @@ public class MNISTCUDNN {
             checkCUDNN( cudnnCreateTensorDescriptor(biasTensorDesc) );
             checkCUDNN( cudnnCreateFilterDescriptor(filterDesc) );
             checkCUDNN( cudnnCreateConvolutionDescriptor(convDesc) );
+            checkCUDNN( cudnnCreateActivationDescriptor(activationDesc) );
             checkCUDNN( cudnnCreatePoolingDescriptor(poolingDesc) );
 
             checkCudaErrors( cublasCreate_v2(cublasHandle) );
         }
         void destroyHandles() {
             checkCUDNN( cudnnDestroyPoolingDescriptor(poolingDesc) );
+            checkCUDNN( cudnnCreateActivationDescriptor(activationDesc) );
             checkCUDNN( cudnnDestroyConvolutionDescriptor(convDesc) );
             checkCUDNN( cudnnDestroyFilterDescriptor(filterDesc) );
             checkCUDNN( cudnnDestroyTensorDescriptor(srcTensorDesc) );
@@ -241,7 +284,7 @@ public class MNISTCUDNN {
                                                     1) );
             FloatPointer alpha = new FloatPointer(1.0f);
             FloatPointer beta  = new FloatPointer(1.0f);
-            checkCUDNN( cudnnAddTensor(cudnnHandle, CUDNN_ADD_SAME_C,
+            checkCUDNN( cudnnAddTensor(cudnnHandle,
                                           alpha, biasTensorDesc,
                                           layer.bias_d[0],
                                           beta,
@@ -285,6 +328,7 @@ public class MNISTCUDNN {
 
             checkCUDNN( cudnnSetFilter4dDescriptor(filterDesc,
                                                   dataType,
+                                                  tensorFormat,
                                                   conv.outputs,
                                                   conv.inputs,
                                                   conv.kernel_dim,
@@ -296,7 +340,7 @@ public class MNISTCUDNN {
                                                         0,0, // padding
                                                         1,1, // stride
                                                         1,1, // upscale
-                                                        CUDNN_CROSS_CORRELATION) );
+                                                        CUDNN_CROSS_CORRELATION, dataType) );
             // find dimension of convolution output
             checkCUDNN( cudnnGetConvolution2dForwardOutputDim(convDesc,
                                                     srcTensorDesc,
@@ -356,6 +400,7 @@ public class MNISTCUDNN {
                          FloatPointer srcData, FloatPointer dstData) {
             checkCUDNN( cudnnSetPooling2dDescriptor(poolingDesc,
                                                     CUDNN_POOLING_MAX,
+                                                    CUDNN_PROPAGATE_NAN,
                                                     2, 2, // window
                                                     0, 0, // padding
                                                     2, 2  // stride
@@ -426,10 +471,14 @@ public class MNISTCUDNN {
                                                     n, c,
                                                     h,
                                                     w) );
+            checkCUDNN( cudnnSetActivationDescriptor(activationDesc,
+                                                      CUDNN_ACTIVATION_RELU,
+                                                      CUDNN_PROPAGATE_NAN,
+                                                      0) );
             FloatPointer alpha = new FloatPointer(1.0f);
             FloatPointer beta  = new FloatPointer(0.0f);
             checkCUDNN( cudnnActivationForward(cudnnHandle,
-                                                CUDNN_ACTIVATION_RELU,
+                                                activationDesc,
                                                 alpha,
                                                 srcTensorDesc,
                                                 srcData,

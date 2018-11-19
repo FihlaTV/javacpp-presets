@@ -5,7 +5,7 @@ Introduction
 ------------
 This directory contains the JavaCPP Presets module for:
 
- * GSL 2.1  http://www.gnu.org/software/gsl/
+ * GSL 2.5  http://www.gnu.org/software/gsl/
 
 Please refer to the parent README.md file for more detailed information about the JavaCPP Presets.
 
@@ -19,11 +19,11 @@ Java API documentation is available here:
 
 Sample Usage
 ------------
-Here is a simple example of GSL ported to Java from this C source file:
+Here is a simple example of GSL ported to Java from this demo.c source file:
 
- * https://www.gnu.org/software/gsl/manual/html_node/An-Example-Program.html
+ * https://www.gnu.org/software/gsl/manual/html_node/Random-Number-Distribution-Examples.html
 
-We can use [Maven 3](http://maven.apache.org/) to download and install automatically all the class files as well as the native binaries. To run this sample code, after creating the `pom.xml` and `src/main/java/Example.java` source files below, simply execute on the command line:
+We can use [Maven 3](http://maven.apache.org/) to download and install automatically all the class files as well as the native binaries. To run this sample code, after creating the `pom.xml` and `src/main/java/Demo.java` source files below, simply execute on the command line:
 ```bash
  $ mvn compile exec:java
 ```
@@ -33,31 +33,54 @@ We can use [Maven 3](http://maven.apache.org/) to download and install automatic
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bytedeco.javacpp-presets.gsl</groupId>
-    <artifactId>example</artifactId>
-    <version>1.2</version>
+    <artifactId>demo</artifactId>
+    <version>1.4.3</version>
     <properties>
-        <exec.mainClass>Example</exec.mainClass>
+        <exec.mainClass>Demo</exec.mainClass>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>gsl</artifactId>
-            <version>2.1-1.2</version>
+            <artifactId>gsl-platform</artifactId>
+            <version>2.5-1.4.3</version>
         </dependency>
     </dependencies>
 </project>
 ```
 
-### The `src/main/java/Example.java` source file
+### The `src/main/java/Demo.java` source file
 ```java
 import org.bytedeco.javacpp.*;
 import static org.bytedeco.javacpp.gsl.*;
 
-public class Example {
+public class Demo {
     public static void main(String[] args) {
-        double x = 5.0;
-        double y = gsl_sf_bessel_J0(x);
-        System.out.printf("J0(%g) = %.18e\n", x, y);
+        gsl_rng_type T;
+        gsl_rng r;
+
+        int n = 10;
+        double mu = 3.0;
+
+        /* create a generator chosen by the 
+           environment variable GSL_RNG_TYPE */
+
+        gsl_rng_env_setup();
+
+        T = gsl_rng_default();
+        r = gsl_rng_alloc(T);
+
+        /* print n random variates chosen from 
+           the poisson distribution with mean 
+           parameter mu */
+
+        for (int i = 0; i < n; i++) {
+            int k = gsl_ran_poisson(r, mu);
+            System.out.printf(" %d", k);
+        }
+
+        System.out.println();
+        gsl_rng_free(r);
+        System.exit(0);
     }
 }
 ```

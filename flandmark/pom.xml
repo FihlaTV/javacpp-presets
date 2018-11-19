@@ -6,24 +6,19 @@
   <parent>
     <groupId>org.bytedeco</groupId>
     <artifactId>javacpp-presets</artifactId>
-    <version>1.2</version>
+    <version>1.4.4-SNAPSHOT</version>
   </parent>
 
   <groupId>org.bytedeco.javacpp-presets</groupId>
   <artifactId>flandmark</artifactId>
   <version>1.07-${project.parent.version}</version>
-  <packaging>jar</packaging>
   <name>JavaCPP Presets for flandmark</name>
-
-  <properties>
-    <javacpp.platform.oldcompiler>${javacpp.platform.compiler}</javacpp.platform.oldcompiler>
-  </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.bytedeco.javacpp-presets</groupId>
       <artifactId>opencv</artifactId>
-      <version>3.1.0-${project.parent.version}</version>
+      <version>4.0.0-rc-${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>org.bytedeco</groupId>
@@ -34,10 +29,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
         <artifactId>maven-resources-plugin</artifactId>
       </plugin>
       <plugin>
@@ -46,23 +37,27 @@
       <plugin>
         <groupId>org.bytedeco</groupId>
         <artifactId>javacpp</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.0.0-rc-${project.parent.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.bytedeco.javacpp-presets</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.0.0-rc-${project.parent.version}</version>
+            <classifier>${javacpp.platform}</classifier>
+          </dependency>
+        </dependencies>
         <configuration>
-          <propertyKeysAndValues>
-            <property>
-              <name>platform.root</name>
-              <value>${javacpp.platform.root}</value>
-            </property>
-            <property>
-              <name>platform.compiler</name>
-              <value>${javacpp.platform.oldcompiler}</value>
-            </property>
-          </propertyKeysAndValues>
           <classPaths>
             <classPath>${basedir}/../opencv/target/classes/</classPath>
             <classPath>${project.build.outputDirectory}</classPath>
           </classPaths>
           <includePaths>
-            <includePath>${basedir}/../opencv/target/classes/org/bytedeco/javacpp/</includePath>
+            <includePath>${basedir}/../opencv/target/classes/org/bytedeco/javacpp/include/</includePath>
+            <includePath>${basedir}/../opencv/src/main/resources/org/bytedeco/javacpp/include/</includePath>
             <includePath>${basedir}/../opencv/cppbuild/${javacpp.platform}/include/opencv/</includePath>
             <includePath>${basedir}/../opencv/cppbuild/${javacpp.platform}/include/</includePath>
             <includePath>${basedir}/cppbuild/${javacpp.platform}/include/</includePath>
