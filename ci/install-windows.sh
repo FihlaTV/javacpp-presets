@@ -105,7 +105,7 @@ fi
 
 if [ "$PROJ" == "mkl" ]; then
        echo Installing mkl 
-       curl -L  -o mkl.exe "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/13558/w_mkl_2019.0.117.exe"
+       curl -L  -o mkl.exe "http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/14893/w_mkl_2019.1.144.exe"
        ./mkl.exe --s --x --f .
        ./install.exe install --output=mkllog.txt -eula=accept
        sleep 60
@@ -116,10 +116,10 @@ fi
 if [ "$PROJ" == "cuda" ] || [ "$EXT" == "-gpu" ]; then
        echo Installing cuda 
        curl -L -o cuda_10.0.130_411.31_windows.exe "https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_411.31_windows"
-       curl -L -o cudnn-10.0-windows7-x64-v7.3.0.29.zip "https://developer.download.nvidia.com/compute/redist/cudnn/v7.3.0/cudnn-10.0-windows7-x64-v7.3.0.29.zip"
+       curl -L -o cudnn-10.0-windows7-x64-v7.4.1.5.zip "https://developer.download.nvidia.com/compute/redist/cudnn/v7.4.1/cudnn-10.0-windows7-x64-v7.4.1.5.zip"
        ./cuda_10.0.130_411.31_windows.exe -s
        sleep 60
-       unzip ./cudnn-10.0-windows7-x64-v7.3.0.29.zip
+       unzip ./cudnn-10.0-windows7-x64-v7.4.1.5.zip
        mv ./cuda/bin/*.dll /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v10.0/bin
        mv ./cuda/include/*.h /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v10.0/include
        mv ./cuda/lib/x64/*.lib /c/Program\ Files/NVIDIA\ GPU\ Computing\ Toolkit/CUDA/v10.0/lib/x64

@@ -111,10 +111,10 @@ if [[ "$OS" == "linux-x86" ]] || [[ "$OS" == "linux-x86_64" ]] || [[ "$OS" =~ an
   fi
   if [[ "$PROJ" == "mkl" ]] && [[ "$OS" =~ linux ]]; then
          #don't put in download dir as will be cached and we can use direct url instead
-         curl -L http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/13575/l_mkl_2019.0.117.tgz -o $HOME/mkl.tgz
+         curl -L http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/14895/l_mkl_2019.1.144.tgz -o $HOME/mkl.tgz
          tar xzvf $HOME/mkl.tgz -C $TRAVIS_BUILD_DIR/../
-         sed -i -e 's/decline/accept/g' $TRAVIS_BUILD_DIR/../l_mkl_2019.0.117/silent.cfg
-         docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -xec "$HOME/build/l_mkl_2019.0.117/install.sh -s $HOME/build/l_mkl_2019.0.117/silent.cfg"
+         sed -i -e 's/decline/accept/g' $TRAVIS_BUILD_DIR/../l_mkl_2019.1.144/silent.cfg
+         docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -xec "$HOME/build/l_mkl_2019.1.144/install.sh -s $HOME/build/l_mkl_2019.1.144/silent.cfg"
   fi
   if [ "$PROJ" == "tensorflow" ]; then
         echo "adding bazel for tensorflow"
@@ -251,13 +251,13 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
 
       if [ "$PROJ" == "mkl" ]; then
         #don't put in download dir as will be cached and we can use direct url instead
-        curl -L http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/13565/m_mkl_2019.0.117.dmg -o $HOME/mkl.dmg
+        curl -L http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/14894/m_mkl_2019.1.144.dmg -o $HOME/mkl.dmg
         echo "Mount mkl dmg"
         hdiutil mount $HOME/mkl.dmg
         sleep 10
-        cp /Volumes/m_mkl_2019.0.117/m_mkl_2019.0.117.app/Contents/MacOS/silent.cfg $HOME/silent.cfg
+        cp /Volumes/m_mkl_2019.1.144/m_mkl_2019.1.144.app/Contents/MacOS/silent.cfg $HOME/silent.cfg
         sed -i -e 's/decline/accept/g' $HOME/silent.cfg
-        sudo /Volumes/m_mkl_2019.0.117/m_mkl_2019.0.117.app/Contents/MacOS/install.sh -s $HOME/silent.cfg; export BREW_STATUS=$?
+        sudo /Volumes/m_mkl_2019.1.144/m_mkl_2019.1.144.app/Contents/MacOS/install.sh -s $HOME/silent.cfg; export BREW_STATUS=$?
         echo "mkl status $BREW_STATUS"
         if [ $BREW_STATUS -ne 0 ]; then
           echo "mkl Failed"
@@ -269,7 +269,7 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
         echo "installing cuda.."
         #don't put in download dir as will be cached and we can use direct url instead
         curl -L https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_mac -o $HOME/cuda_10.0.130_mac.dmg
-        curl -L https://developer.download.nvidia.com/compute/redist/cudnn/v7.3.0/cudnn-10.0-osx-x64-v7.3.0.29.tgz -o $HOME/cudnn-10.0-osx-x64-v7.3.0.29.tgz
+        curl -L https://developer.download.nvidia.com/compute/redist/cudnn/v7.4.1/cudnn-10.0-osx-x64-v7.4.1.5.tgz -o $HOME/cudnn-10.0-osx-x64-v7.4.1.5.tgz
 
         echo "Mount dmg"
         hdiutil mount $HOME/cuda_10.0.130_mac.dmg
@@ -282,7 +282,7 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
           exit $BREW_STATUS
         fi
 
-        tar xvf $HOME/cudnn-10.0-osx-x64-v7.3.0.29.tgz
+        tar xvf $HOME/cudnn-10.0-osx-x64-v7.4.1.5.tgz
         sudo cp ./cuda/include/*.h /usr/local/cuda/include/
         sudo cp ./cuda/lib/*.dylib /usr/local/cuda/lib/
         sudo cp ./cuda/lib/*.a /usr/local/cuda/lib/
