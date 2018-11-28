@@ -36,7 +36,7 @@ if [[ $PLATFORM == windows* && !($DISABLE_WIN =~ "--disable-everything") ]]; the
     7z x -y ../ffmpeg-$FFMPEG_VERSION-win$BITS-dev.7z
     7z x -y ../ffmpeg-$FFMPEG_VERSION-win$BITS-shared.7z
 else
-    ZLIB=zlib-1.2.10
+    ZLIB=zlib-1.2.11
     LAME=lame-3.99.5
     SPEEX=speex-1.2rc2
     OPENCORE_AMR=opencore-amr-0.1.3
@@ -295,6 +295,7 @@ case $PLATFORM in
         cd ../ffmpeg-$FFMPEG_VERSION
         patch -Np1 < ../../../ffmpeg-$FFMPEG_VERSION-windows.patch
         patch -Np1 < ../../../ffmpeg-rtmps-block.patch
+        patch -Np0 < ../../../tlsv1.2.patch
         PKG_CONFIG_PATH=../lib/pkgconfig/ ./configure --prefix=.. $DISABLE_WIN $ENABLE_WIN --enable-indev=gdigrab --target-os=mingw32 --cc="gcc -m32" --extra-cflags="-I../include/" --extra-ldflags="-L../lib/" --extra-libs="-static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic"
         make -j $MAKEJ
         make install
@@ -318,6 +319,7 @@ case $PLATFORM in
         cd ../ffmpeg-$FFMPEG_VERSION
         patch -Np1 < ../../../ffmpeg-$FFMPEG_VERSION-windows.patch
         patch -Np1 < ../../../ffmpeg-rtmps-block.patch
+        patch -Np0 < ../../../tlsv1.2.patch
         PKG_CONFIG_PATH=../lib/pkgconfig/ ./configure --prefix=.. $DISABLE_WIN $ENABLE_WIN --enable-indev=gdigrab --target-os=mingw32 --cc="gcc -m64" --extra-cflags="-I../include/" --extra-ldflags="-L../lib/" --extra-libs="-static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lgcc -lgcc_eh -lpthread -Wl,-Bdynamic"
         make -j $MAKEJ
         make install
